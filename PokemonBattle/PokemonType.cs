@@ -6,7 +6,7 @@ namespace PokemonBattle
     Combat,
     Dragon,
     Eau,
-    Electrik,
+    Électrik,
     Feu,
     Fée,
     Glace,
