@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using PokemonBattle;
 
 namespace PokemonBattle
 {
@@ -75,6 +76,10 @@ namespace PokemonBattle
 
         public void Fight(Pokemon target)
         {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            TypeWriterEffect($"\n{GetStyledName()} de type {Type} est entré dans l'arène de combat");
+            TypeWriterEffect($"{target.GetStyledName()} de type {target.Type} est entré dans l'arène de combat");
+            
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("\n===== TOUR DE COMBAT =====");
             Console.ResetColor();

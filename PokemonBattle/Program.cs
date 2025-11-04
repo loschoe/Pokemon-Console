@@ -23,7 +23,7 @@ class Program
         }
 
         // Accès au pokedex ou poursuite du code 
-        Console.WriteLine("📜  Accéder au pokédex (y/n) : ");
+        Console.WriteLine("📜 Accéder au pokédex (y/n) : ");
         string? choice = Console.ReadLine();
         if (choice != null && choice.ToLower() == "y")
         {
