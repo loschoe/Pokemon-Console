@@ -1,147 +1,183 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using PokemonBattle;
 
 namespace PokemonBattle
 {
-    public class Pokemon
-    {
-        public string Name { get; private set; }
-        public TypePokemon Type { get; private set; }
-        public int PV { get; private set; }
-        public int Attack { get; private set; }
-        public int Defense { get; set; }
-        public int Speed { get; set; }
+	public class Pokemon
+	{
+		public string Name { get; private set; }
+		public TypePokemon Type { get; private set; }
+		public int PV { get; private set; }
+		public int Attack { get; private set; }
+		public int Defense { get; set; }
+		public int Speed { get; set; }
 
-        private static readonly Dictionary<TypePokemon, string> TypeEmojis = new()
-        {
-            { TypePokemon.Électrik, "⚡" },
-            { TypePokemon.Feu, "🔥" },
-            { TypePokemon.Eau, "💧" },
-            { TypePokemon.Plante, "🌿" },
-            { TypePokemon.Psy, "🧠" },
-            { TypePokemon.Glace, "❄️" },
-            { TypePokemon.Ténèbres, "🪦" },
-            { TypePokemon.Acier, "🔩" },
-            { TypePokemon.Vol, "🪽" },
-            { TypePokemon.Sol, "🌍" },
-            { TypePokemon.Dragon, "🐉" },
-            { TypePokemon.Spectre, "👻" },
-            { TypePokemon.Insecte, "🐜" },
-            { TypePokemon.Roche, "🪨" },
-            { TypePokemon.Poison, "☠️" },
-            { TypePokemon.Normal, "⚪" },
-            { TypePokemon.Fée, "✨" },
-            { TypePokemon.Combat, "👊" }
-        };
+		private bool hasEnteredArena = false; // ✅ Pour savoir si le Pokémon est déjà entré
 
-        public Pokemon(string name, TypePokemon type, int pv, int attack, int defense, int speed)
-        {
-            Name = name;
-            Type = type;
-            PV = pv;
-            Attack = attack;
-            Defense = defense;
-            Speed = speed;
-        }
+		private static readonly Dictionary<TypePokemon, string> TypeEmojis = new()
+		{
+			{ TypePokemon.Électrik, "⚡" },
+			{ TypePokemon.Feu, "🔥" },
+			{ TypePokemon.Eau, "💧" },
+			{ TypePokemon.Plante, "🌿" },
+			{ TypePokemon.Psy, "🧠" },
+			{ TypePokemon.Glace, "❄️" },
+			{ TypePokemon.Ténèbres, "🪦" },
+			{ TypePokemon.Acier, "🔩" },
+			{ TypePokemon.Vol, "🪽" },
+			{ TypePokemon.Sol, "🌍" },
+			{ TypePokemon.Dragon, "🐉" },
+			{ TypePokemon.Spectre, "👻" },
+			{ TypePokemon.Insecte, "🐜" },
+			{ TypePokemon.Roche, "🪨" },
+			{ TypePokemon.Poison, "☠️" },
+			{ TypePokemon.Normal, "⚪" },
+			{ TypePokemon.Fée, "✨" },
+			{ TypePokemon.Combat, "👊" }
+		};
 
-        public string GetStyledName()
-        {
-            string emoji = TypeEmojis.ContainsKey(Type) ? $" {TypeEmojis[Type]}" : "";
-            return $"{Name}{emoji}";
-        }
+		public Pokemon(string name, TypePokemon type, int pv, int attack, int defense, int speed)
+		{
+			Name = name;
+			Type = type;
+			PV = pv;
+			Attack = attack;
+			Defense = defense;
+			Speed = speed;
+		}
 
-        public static void TypeWriterEffect(string text, int delay = 30)
-        {
-            foreach (char c in text)
-            {
-                Console.Write(c);
-                Thread.Sleep(delay);
-            }
-            Console.WriteLine();
-        }
+		public string GetStyledName()
+		{
+			string emoji = TypeEmojis.ContainsKey(Type) ? $" {TypeEmojis[Type]}" : "";
+			return $"{Name}{emoji}";
+		}
 
-        public void AfficherInfos()
-        {
-            Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect("\n------- FICHE POKEMON -------");
-            TypeWriterEffect($"Nom : {GetStyledName()}");
-            TypeWriterEffect($"Type : {Type}");
-            TypeWriterEffect($"Points de vie : {PV}");
-            TypeWriterEffect($"Points d'attaque : {Attack}");
-            TypeWriterEffect($"Défense : {Defense}");
-            TypeWriterEffect($"Vitesse : {Speed}");
-            Console.ResetColor();
-        }
+		public static void TypeWriterEffect(string text, int delay = 30)
+		{
+			foreach (char c in text)
+			{
+				Console.Write(c);
+				Thread.Sleep(delay);
+			}
+			Console.WriteLine();
+		}
 
-        public void Fight(Pokemon target)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            TypeWriterEffect($"\n{GetStyledName()} de type {Type} est entré dans l'arène de combat");
-            TypeWriterEffect($"{target.GetStyledName()} de type {target.Type} est entré dans l'arène de combat");
-            
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\n===== TOUR DE COMBAT =====");
-            Console.ResetColor();
+		public void AfficherInfos()
+		{
+			Console.ForegroundColor = GetConsoleColor();
+			TypeWriterEffect("\n------- FICHE POKEMON -------");
+			TypeWriterEffect($"Nom : {GetStyledName()}");
+			TypeWriterEffect($"Type : {Type}");
+			TypeWriterEffect($"Points de vie : {PV}");
+			TypeWriterEffect($"Points d'attaque : {Attack}");
+			TypeWriterEffect($"Défense : {Defense}");
+			TypeWriterEffect($"Vitesse : {Speed}");
+			Console.ResetColor();
+		}
 
-            Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect($"{GetStyledName()} attaque {target.GetStyledName()}  et inflige {Attack} points de dégâts !");
-            target.Damage(Attack);
-            target.CheckStatus();
-            Console.ResetColor();
-        }
+		// --- 🧩 Système de combat avec efficacité des types ---
+		public void Fight(Pokemon target)
+		{
+			// ✅ Afficher l’entrée uniquement au tout premier tour
+			if (!hasEnteredArena)
+			{
+				Console.ForegroundColor = ConsoleColor.DarkGray;
+				TypeWriterEffect($"\n{GetStyledName()} de type {Type} est entré dans l'arène de combat");
+				TypeWriterEffect($"{target.GetStyledName()} de type {target.Type} est entré dans l'arène de combat");
+				Console.ResetColor();
+				hasEnteredArena = true;
+				target.hasEnteredArena = true;
+			}
 
-        public void Damage(int damage)
-        {
-            PV -= damage;
-            if (PV < 0) PV = 0;
-            Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect($"{GetStyledName()}  a maintenant {PV} PV.");
-        }
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("\n===== TOUR DE COMBAT =====");
+			Console.ResetColor();
 
-        public void CheckStatus()
-        {
-            Console.ForegroundColor = GetConsoleColor();
-            if (PV <= 0)
-            {
-                TypeWriterEffect($"{GetStyledName()}  est KO !");
-            }
-            else
-            {
-                TypeWriterEffect($"{GetStyledName()}  peut encore se battre !");
-            }
-            Console.ResetColor();
-        }
+			// 🧮 --- Calcul du multiplicateur d’efficacité ---
+			double multiplicateur = TypeHelper.GetEffectiveness(this.Type, target.Type);
 
-        public bool IsKO()
-        {
-            return PV <= 0;
-        }
+			// ⚔️ --- Calcul des dégâts finaux ---
+			int degatsFinaux = (int)(Attack * multiplicateur);
+			if (degatsFinaux < 0) degatsFinaux = 0;
 
-        private ConsoleColor GetConsoleColor()
-        {
-            return Type switch
-            {
-                TypePokemon.Électrik => ConsoleColor.Yellow,
-                TypePokemon.Combat => ConsoleColor.Blue,
-                TypePokemon.Feu => ConsoleColor.Red,
-                TypePokemon.Eau => ConsoleColor.Cyan,
-                TypePokemon.Plante => ConsoleColor.Green,
-                TypePokemon.Psy => ConsoleColor.Magenta,
-                TypePokemon.Glace => ConsoleColor.White,
-                TypePokemon.Ténèbres => ConsoleColor.DarkGray,
-                TypePokemon.Acier => ConsoleColor.Gray,
-                TypePokemon.Vol => ConsoleColor.DarkCyan,
-                TypePokemon.Sol => ConsoleColor.DarkYellow,
-                TypePokemon.Dragon => ConsoleColor.DarkMagenta,
-                TypePokemon.Spectre => ConsoleColor.DarkBlue,
-                TypePokemon.Insecte => ConsoleColor.DarkGreen,
-                TypePokemon.Roche => ConsoleColor.DarkYellow,
-                TypePokemon.Poison => ConsoleColor.DarkMagenta,
-                TypePokemon.Normal => ConsoleColor.Gray,
-                TypePokemon.Fée => ConsoleColor.Magenta,
-                _ => ConsoleColor.White
-            };
-        }
-    }
+			// 💬 --- Message selon efficacité ---
+			string message = multiplicateur switch
+			{
+				2.0 => $"L'attaque de {GetStyledName()} est très efficace contre {target.GetStyledName()} ! 💥",
+				0.5 => $"L'attaque de {GetStyledName()} n'est pas très efficace contre {target.GetStyledName()}... 😐",
+				0.0 => $"L'attaque de {GetStyledName()} n’a aucun effet sur {target.GetStyledName()} 😶",
+				_ => $"L'attaque de {GetStyledName()} est normale contre {target.GetStyledName()}."
+			};
+
+			// 🎨 --- Couleur selon efficacité ---
+			if (multiplicateur == 2.0) Console.ForegroundColor = ConsoleColor.Green;
+			else if (multiplicateur == 0.5) Console.ForegroundColor = ConsoleColor.Yellow;
+			else if (multiplicateur == 0.0) Console.ForegroundColor = ConsoleColor.Gray;
+			else Console.ForegroundColor = ConsoleColor.White;
+
+			TypeWriterEffect(message);
+			Console.ResetColor();
+
+			// 💥 --- Attaque appliquée ---
+			Console.ForegroundColor = GetConsoleColor();
+			TypeWriterEffect($"{GetStyledName()} attaque {target.GetStyledName()} et inflige {degatsFinaux} points de dégâts !");
+			Console.ResetColor();
+
+			target.Damage(degatsFinaux);
+			target.CheckStatus();
+		}
+
+		public void Damage(int damage)
+		{
+			PV -= damage;
+			if (PV < 0) PV = 0;
+
+			Console.ForegroundColor = GetConsoleColor();
+			TypeWriterEffect($"{GetStyledName()} a maintenant {PV} PV restants.");
+			Console.ResetColor();
+		}
+
+		public void CheckStatus()
+		{
+			Console.ForegroundColor = GetConsoleColor();
+			if (PV <= 0)
+				TypeWriterEffect($"{GetStyledName()} est KO !");
+			else
+				TypeWriterEffect($"{GetStyledName()} peut encore se battre !");
+			Console.ResetColor();
+		}
+
+		public bool IsKO()
+		{
+			return PV <= 0;
+		}
+
+		private ConsoleColor GetConsoleColor()
+		{
+			return Type switch
+			{
+				TypePokemon.Électrik => ConsoleColor.Yellow,
+				TypePokemon.Combat => ConsoleColor.Blue,
+				TypePokemon.Feu => ConsoleColor.Red,
+				TypePokemon.Eau => ConsoleColor.Cyan,
+				TypePokemon.Plante => ConsoleColor.Green,
+				TypePokemon.Psy => ConsoleColor.Magenta,
+				TypePokemon.Glace => ConsoleColor.White,
+				TypePokemon.Ténèbres => ConsoleColor.DarkGray,
+				TypePokemon.Acier => ConsoleColor.Gray,
+				TypePokemon.Vol => ConsoleColor.DarkCyan,
+				TypePokemon.Sol => ConsoleColor.DarkYellow,
+				TypePokemon.Dragon => ConsoleColor.DarkMagenta,
+				TypePokemon.Spectre => ConsoleColor.DarkBlue,
+				TypePokemon.Insecte => ConsoleColor.DarkGreen,
+				TypePokemon.Roche => ConsoleColor.DarkYellow,
+				TypePokemon.Poison => ConsoleColor.DarkMagenta,
+				TypePokemon.Normal => ConsoleColor.Gray,
+				TypePokemon.Fée => ConsoleColor.Magenta,
+				_ => ConsoleColor.White
+			};
+		}
+	}
 }
