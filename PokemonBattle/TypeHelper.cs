@@ -315,7 +315,7 @@ namespace PokemonBattle
             {
                 return multiplier;
             }
-            return 1.0; // dégâts normaux par défaut
+            return 1.0;
         }
 
         public static double GetEffectiveness(TypePokemon attackerType, TypePokemon defenderType1, TypePokemon defenderType2)

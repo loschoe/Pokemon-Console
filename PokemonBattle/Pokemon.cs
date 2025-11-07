@@ -14,9 +14,9 @@ namespace PokemonBattle
 		public int Defense { get; set; }
 		public int Speed { get; set; }
 
-		private bool hasEnteredArena = false; // ✅ Pour savoir si le Pokémon est déjà entré
+		private bool hasEnteredArena = false;							// Ne pas réafficher le message d'entrée dans l'arène de combat 
 
-		private static readonly Dictionary<TypePokemon, string> TypeEmojis = new()
+		private static readonly Dictionary<TypePokemon, string> TypeEmojis = new()		// Afficher un émoji à côté du nom du pokemon 
 		{
 			{ TypePokemon.Électrik, "⚡" },
 			{ TypePokemon.Feu, "🔥" },
@@ -45,16 +45,16 @@ namespace PokemonBattle
 			PV = pv;
 			Attack = attack;
 			Defense = defense;
-			Speed = speed;
+			Speed = speed;				// La vitesse ne sert à rien pour l'instant !
 		}
 
-		public string GetStyledName()
+		public string GetStyledName()	// Afficher l'émoji
 		{
 			string emoji = TypeEmojis.ContainsKey(Type) ? $" {TypeEmojis[Type]}" : "";
 			return $"{Name}{emoji}";
 		}
 
-		public static void TypeWriterEffect(string text, int delay = 30)
+		public static void TypeWriterEffect(string text, int delay = 30)	// le style machine à écrire 
 		{
 			foreach (char c in text)
 			{
@@ -64,7 +64,7 @@ namespace PokemonBattle
 			Console.WriteLine();
 		}
 
-		public void AfficherInfos()
+		public void AfficherInfos() 		// Les infos du pokemon 
 		{
 			Console.ForegroundColor = GetConsoleColor();
 			TypeWriterEffect("\n------- FICHE POKEMON -------");
@@ -77,10 +77,8 @@ namespace PokemonBattle
 			Console.ResetColor();
 		}
 
-		// --- 🧩 Système de combat avec efficacité des types ---
-		public void Fight(Pokemon target)
+		public void Fight(Pokemon target)				// Le système de combat 
 		{
-			// ✅ Afficher l’entrée uniquement au tout premier tour
 			if (!hasEnteredArena)
 			{
 				Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -95,14 +93,10 @@ namespace PokemonBattle
 			Console.WriteLine("\n===== TOUR DE COMBAT =====");
 			Console.ResetColor();
 
-			// 🧮 --- Calcul du multiplicateur d’efficacité ---
 			double multiplicateur = TypeHelper.GetEffectiveness(this.Type, target.Type);
-
-			// ⚔️ --- Calcul des dégâts finaux ---
 			int degatsFinaux = (int)(Attack * multiplicateur);
 			if (degatsFinaux < 0) degatsFinaux = 0;
 
-			// 💬 --- Message selon efficacité ---
 			string message = multiplicateur switch
 			{
 				2.0 => $"L'attaque de {GetStyledName()} est très efficace contre {target.GetStyledName()} ! 💥",
@@ -111,16 +105,10 @@ namespace PokemonBattle
 				_ => $"L'attaque de {GetStyledName()} est normale contre {target.GetStyledName()}."
 			};
 
-			// 🎨 --- Couleur selon efficacité ---
-			if (multiplicateur == 2.0) Console.ForegroundColor = ConsoleColor.Green;
-			else if (multiplicateur == 0.5) Console.ForegroundColor = ConsoleColor.Yellow;
-			else if (multiplicateur == 0.0) Console.ForegroundColor = ConsoleColor.Gray;
-			else Console.ForegroundColor = ConsoleColor.White;
-
+			Console.ForegroundColor = GetConsoleColor();
 			TypeWriterEffect(message);
 			Console.ResetColor();
 
-			// 💥 --- Attaque appliquée ---
 			Console.ForegroundColor = GetConsoleColor();
 			TypeWriterEffect($"{GetStyledName()} attaque {target.GetStyledName()} et inflige {degatsFinaux} points de dégâts !");
 			Console.ResetColor();

@@ -61,7 +61,6 @@ public static class PokemonLoader
                         continue;
                     }
 
-                    // Ignore le deuxième type pour rester compatible avec ta classe actuelle
                     int pv = int.Parse(values[3]);
                     int attack = int.Parse(values[4]);
                     int defense = int.Parse(values[5]);
