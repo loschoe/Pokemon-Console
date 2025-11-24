@@ -5,12 +5,13 @@ using System.Collections.Generic;
 class Program
 {
     static void Main(string[] args)
-    {   // Message de bienvenue 
+    {
+        // Message de bienvenue 
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine("\n⚔️  Bienvenue dans la console de combat Pokémon !");
         Console.ResetColor();
 
-        // Importation du pokedex 
+        // Importation du pokédex 
         string filePath = "pokedex.csv";
         List<Pokemon> pokemons = PokemonLoader.LoadFromCSV(filePath);
 
@@ -22,7 +23,7 @@ class Program
             return;
         }
 
-        // Accès au pokedex ou poursuite du code 
+        // Accès au pokédex
         Console.WriteLine("📜 Accéder au pokédex (y/n) : ");
         string? choice = Console.ReadLine();
         if (choice != null && choice.ToLower() == "y")
@@ -33,12 +34,8 @@ class Program
                 Console.WriteLine($"{i} - {pokemons[i].Name}");
             }
         }
-        else
-        {
-            // Poursuite du code 
-        }
 
-        // Demande à l'utilisateur quel pokemon veut-il utiliser 
+        // Choix du Pokémon joueur
         Console.WriteLine("\nQuel Pokémon voulez-vous dans votre équipe ? (N° ou nom) : ");
         string? input = Console.ReadLine();
         Console.Clear();
@@ -52,13 +49,10 @@ class Program
         }
 
         Pokemon? pokemon1 = null;
-
         if (int.TryParse(input, out int index))
         {
             if (index >= 0 && index < pokemons.Count)
-            {
                 pokemon1 = pokemons[index];
-            }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -81,16 +75,50 @@ class Program
 
         Pokemon pokemon1Selected = pokemon1;
 
-        // Pokemon ennemi défini aléatoirement 
+        // Vérification que le Pokémon joueur a au moins une attaque
+        if (pokemon1Selected.Attacks.Count == 0)
+        {
+            pokemon1Selected.Attacks.Add(new DamageAttack("Coup", pokemon1Selected.Type, pokemon1Selected.Attack));
+            pokemon1Selected.Attacks.Add(new DamageAttack("Griffe", pokemon1Selected.Type, pokemon1Selected.Attack));
+            pokemon1Selected.Attacks.Add(new HealingAttack("Soin", pokemon1Selected.Type, pokemon1Selected.MaxPV / 2));
+            pokemon1Selected.Attacks.Add(new VampireAttack("Chauve-souris", pokemon1Selected.Type, pokemon1Selected.Attack, 1));
+        }
+
+        // Pokémon ennemi défini aléatoirement
         Random rnd = new Random();
         Pokemon pokemon2 = pokemons[rnd.Next(pokemons.Count)];
 
-        Console.WriteLine("Les combattants sont :");
+        // Vérification que l'ennemi a au moins une attaque
+        if (pokemon2.Attacks.Count == 0)
+        {
+            switch (pokemon2.Type)
+        {
+            case TypePokemon.Feu:
+                pokemon2.Attacks.Add(new DamageAttack("Flamme", TypePokemon.Feu, pokemon2.Attack));
+                pokemon2.Attacks.Add(new DamageAttack("Griffe", TypePokemon.Normal, pokemon2.Attack));
+                break;
+            case TypePokemon.Eau:
+                pokemon2.Attacks.Add(new DamageAttack("Pistolet à O", TypePokemon.Eau, pokemon2.Attack));
+                pokemon2.Attacks.Add(new DamageAttack("Morsure", TypePokemon.Normal, pokemon2.Attack));
+                break;
+            case TypePokemon.Électrik:
+                pokemon2.Attacks.Add(new DamageAttack("Tonnerre", TypePokemon.Électrik, pokemon2.Attack));
+                pokemon2.Attacks.Add(new DamageAttack("Éclair", TypePokemon.Électrik, pokemon2.Attack));
+                break;
+            default:
+                pokemon2.Attacks.Add(new DamageAttack("Coup", TypePokemon.Normal, pokemon2.Attack));
+                pokemon2.Attacks.Add(new DamageAttack("Griffe", TypePokemon.Normal, pokemon2.Attack));
+                break;
+}
 
+        }
+
+        // Affichage des combattants
+        Console.WriteLine("Les combattants sont :");
         pokemon1Selected.AfficherInfos();
         pokemon2.AfficherInfos();
 
-        // Boucle de combat 
+        // Boucle de combat automatique
         while (!pokemon1Selected.IsKO() && !pokemon2.IsKO())
         {
             pokemon1Selected.Fight(pokemon2);
@@ -99,7 +127,7 @@ class Program
             pokemon2.Fight(pokemon1Selected);
         }
 
-        // Fin du jeu !
+        // Fin du combat
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine("\n===== FIN DU COMBAT =====");
 

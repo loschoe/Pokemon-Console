@@ -44,11 +44,13 @@ public static class PokemonLoader
                     }
 
                     int pv = int.Parse(values[2]);
-                    int attack = int.Parse(values[3]);
-                    int defense = int.Parse(values[4]);
-                    int speed = int.Parse(values[5]);
+                    int maxpv = int.Parse(values[3]);
+                    int attack = int.Parse(values[4]);
+                    int defense = int.Parse(values[5]);
 
-                    var pokemon = new Pokemon(name, type1, pv, attack, defense, speed);
+                    var pokemon = new Pokemon(name, type1, pv, maxpv, attack, defense);
+                    pokemon.Attacks.Add(new DamageAttack("Attaque normale", pokemon.Type, pokemon.Attack));
+                    pokemon.Attacks.Add(new DamageAttack("Attaque puissante", pokemon.Type, pokemon.Attack + 20));
                     pokemons.Add(pokemon);
                 }
                 else if (values.Length == 7)
@@ -62,11 +64,12 @@ public static class PokemonLoader
                     }
 
                     int pv = int.Parse(values[3]);
-                    int attack = int.Parse(values[4]);
-                    int defense = int.Parse(values[5]);
-                    int speed = int.Parse(values[6]);
+                    int maxpv = int.Parse(values[4]);
+                    int attack = int.Parse(values[5]);
+                    int defense = int.Parse(values[6]);
 
-                    var pokemon = new Pokemon(name, type1, pv, attack, defense, speed);
+
+                    var pokemon = new Pokemon(name, type1, pv, maxpv, attack, defense);
                     pokemons.Add(pokemon);
                 }
                 else
