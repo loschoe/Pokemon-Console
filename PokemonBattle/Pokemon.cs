@@ -14,30 +14,7 @@ namespace PokemonBattle
         public int Defense { get; set; }
         public List<Attack> Attacks { get; set; } = new();
 
-        private bool hasEnteredArena = false;
         private static readonly Random random = new();
-
-        private static readonly Dictionary<TypePokemon, string> TypeEmojis = new()
-        {
-            { TypePokemon.Électrik, "⚡" },
-            { TypePokemon.Feu, "🔥" },
-            { TypePokemon.Eau, "💧" },
-            { TypePokemon.Plante, "🌿" },
-            { TypePokemon.Psy, "🧠" },
-            { TypePokemon.Glace, "❄️" },
-            { TypePokemon.Ténèbres, "🪦" },
-            { TypePokemon.Acier, "🔩" },
-            { TypePokemon.Vol, "🪽" },
-            { TypePokemon.Sol, "🌍" },
-            { TypePokemon.Dragon, "🐉" },
-            { TypePokemon.Spectre, "👻" },
-            { TypePokemon.Insecte, "🐜" },
-            { TypePokemon.Roche, "🪨" },
-            { TypePokemon.Poison, "☠️" },
-            { TypePokemon.Normal, "⚪" },
-            { TypePokemon.Fée, "✨" },
-            { TypePokemon.Combat, "👊" }
-        };
 
         public Pokemon(string name, TypePokemon type, int pv, int maxpv, int attack, int defense)
         {
@@ -49,12 +26,9 @@ namespace PokemonBattle
             Defense = defense;
         }
 
-        public string GetStyledName()
-        {
-            return $"{Name}{(TypeEmojis.ContainsKey(Type) ? $" {TypeEmojis[Type]}" : "")}";
-        }
+        public string GetStyledName() => $"{Name}";
 
-        public static void TypeWriterEffect(string text, int delay = 30)
+        public static void TypeWriterEffect(string text, int delay = 20)
         {
             foreach (char c in text)
             {
@@ -67,80 +41,74 @@ namespace PokemonBattle
         public void AfficherInfos()
         {
             Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect("\n------- FICHE POKEMON -------");
-            TypeWriterEffect($"Nom : {GetStyledName()}");
-            TypeWriterEffect($"Type : {Type}");
-            TypeWriterEffect($"Points de vie : {PV}/{MaxPV}");
-            TypeWriterEffect($"Attaque : {Attack}");
-            TypeWriterEffect($"Défense : {Defense}");
+            Console.WriteLine($"\n------- {GetStyledName()} -------");
+            Console.WriteLine($"Type: {Type}");
+            Console.WriteLine($"PV: {PV}/{MaxPV}");
+            Console.WriteLine($"Attaque: {Attack}");
+            Console.WriteLine($"Défense: {Defense}");
             Console.ResetColor();
         }
 
         public void Fight(Pokemon target)
         {
-            if (!hasEnteredArena)
+            if (Attacks.Count == 0)
             {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                TypeWriterEffect($"\n{GetStyledName()} de type {Type} est entré dans l'arène");
-                TypeWriterEffect($"{target.GetStyledName()} de type {target.Type} est entré dans l'arène");
-                Console.ResetColor();
-
-                hasEnteredArena = true;
-                target.hasEnteredArena = true;
+                Console.WriteLine($"{GetStyledName()} n'a aucune attaque !");
+                return;
             }
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\n===== TOUR DE COMBAT =====");
+            var attack = Attacks[random.Next(Attacks.Count)];
+            Console.ForegroundColor = GetConsoleColor();
+            TypeWriterEffect($"{GetStyledName()} utilise {attack.Name} !");
             Console.ResetColor();
 
-            // ✅ Choisir une attaque aléatoire
-            var attack = Attacks[random.Next(Attacks.Count)];
-
-            // ✅ Exécuter l’attaque (calcul fait dans Attack.Use)
             attack.Use(this, target);
-
-            // ✅ Vérifier KO une seule fois
             target.CheckStatus();
         }
 
         public void Damage(string attackName, int damage, double effectiveness)
         {
+            damage = Math.Max(0, damage - Defense);
             PV -= damage;
             if (PV < 0) PV = 0;
 
-            string effMessage = effectiveness switch
+            string eff = effectiveness switch
             {
-                2.0 => "C'est super efficace ! 💥",
+                >= 2.0 => "C'est super efficace ! 💥",
                 0.5 => "Ce n'est pas très efficace... 😐",
                 0.0 => "Cela n’a aucun effet 😶",
                 _ => ""
             };
 
             Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect($"{GetStyledName()} subit {damage} dégâts. {effMessage}");
+            TypeWriterEffect($"{GetStyledName()} subit {damage} dégâts par {attackName} !");
+            if (!string.IsNullOrEmpty(eff))
+                TypeWriterEffect(eff);
             TypeWriterEffect($"PV restants : {PV}");
             Console.ResetColor();
         }
 
-        public void Heal(int amount)
+        public void Heal(int amount, string sourceName = "")
         {
             PV += amount;
             if (PV > MaxPV) PV = MaxPV;
 
             Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect($"{GetStyledName()} récupère {amount} PV ! Il est maintenant à {PV} PV.");
+            if (string.IsNullOrEmpty(sourceName))
+                TypeWriterEffect($"{GetStyledName()} récupère {amount} PV");
+            else
+                TypeWriterEffect($"{GetStyledName()} récupère {amount} PV grâce à {sourceName} !");
             Console.ResetColor();
         }
+
 
         public void CheckStatus()
         {
             Console.ForegroundColor = GetConsoleColor();
-
             if (PV <= 0)
                 TypeWriterEffect($"{GetStyledName()} est KO !");
             else
                 TypeWriterEffect($"{GetStyledName()} peut encore se battre !");
-
             Console.ResetColor();
         }
 
@@ -152,7 +120,7 @@ namespace PokemonBattle
             {
                 TypePokemon.Électrik => ConsoleColor.Yellow,
                 TypePokemon.Combat => ConsoleColor.Blue,
-                TypePokemon.Feu => ConsoleColor.Red,
+                TypePokemon.Feu => ConsoleColor.DarkRed,
                 TypePokemon.Eau => ConsoleColor.Cyan,
                 TypePokemon.Plante => ConsoleColor.Green,
                 TypePokemon.Psy => ConsoleColor.Magenta,

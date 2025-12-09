@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace PokemonBattle
@@ -329,9 +328,9 @@ namespace PokemonBattle
         {
             return multiplier switch
             {
-                >= 2.0 => "Super efficace !",
-                0.5 => "Pas très efficace",
-                0.0 => "Aucun effet...",
+                >= 2.0 => "C'est super efficace ! 💥",
+                0.5 => "Ce n'est pas très efficace... 😐",
+                0.0 => "Cela n’a aucun effet 😶",
                 _ => ""
             };
         }

@@ -1,18 +1,16 @@
-// Classe abstraite 'attack'
-
-namespace PokemonBattle;
-
-public abstract class Attack
+namespace PokemonBattle
 {
-    public string Name { get; }
-    public TypePokemon Type { get; }
-
-    protected Attack(string name, TypePokemon type)
+    public abstract class Attack
     {
-        Name = name;
-        Type = type;
-    }
+        public string Name { get; }
+        public TypePokemon Type { get; }
 
-    public abstract void Use(Pokemon attacker, Pokemon target);
-    public abstract void GetDescription();
+        protected Attack(string name, TypePokemon type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        public abstract void Use(Pokemon attacker, Pokemon target);
+    }
 }

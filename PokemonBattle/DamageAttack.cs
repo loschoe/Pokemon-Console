@@ -4,27 +4,21 @@ namespace PokemonBattle
 {
     public class DamageAttack : Attack
     {
-        public int Damage { get; }
+        public int Power { get; }
 
-        public DamageAttack(string name, TypePokemon type, int damage)
-            : base(name, type)
+        public DamageAttack(string name, TypePokemon type, int power) : base(name, type)
         {
-            Damage = damage;
+            Power = power;
         }
 
         public override void Use(Pokemon attacker, Pokemon target)
         {
-            Console.WriteLine($"{attacker.Name} utilise {Name}!");
-            var effectiveness = TypeHelper.GetEffectiveness(Type, target.Type);
-            var degatsFinaux = (int)(Damage * effectiveness);
-            if (degatsFinaux < 0) degatsFinaux = 0;
+            double effectiveness = TypeHelper.GetEffectiveness(Type, target.Type);
 
-            target.Damage(Name, degatsFinaux, effectiveness);
-        }
-
-        public override void GetDescription()
-        {
-            Console.WriteLine($"- {Name} (Type: {Type}, Damage: {Damage})");
+            int damage = (Power + attacker.Attack);
+            
+            //Console.WriteLine(effectiveness);
+            target.Damage(Name, damage, effectiveness);
         }
     }
 }

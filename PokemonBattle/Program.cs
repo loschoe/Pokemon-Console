@@ -1,152 +1,160 @@
 ﻿using PokemonBattle;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 class Program
 {
-    static void Main(string[] args)
+    public static void TypeWriterEffect(string text, int delay = 20)
     {
-        // Message de bienvenue 
+        foreach (char c in text)
+        {
+            Console.Write(c);
+            Thread.Sleep(delay);
+        }
+        Console.WriteLine();
+    }
+
+    static void Main()
+    {
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine("\n⚔️  Bienvenue dans la console de combat Pokémon !");
+        TypeWriterEffect("\n⚔️ Bienvenue dans le combat Pokémon !");
         Console.ResetColor();
 
-        // Importation du pokédex 
         string filePath = "pokedex.csv";
         List<Pokemon> pokemons = PokemonLoader.LoadFromCSV(filePath);
 
         if (pokemons.Count < 2)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("❌ Le fichier doit contenir au moins deux Pokémon pour lancer un combat.");
-            Console.ResetColor();
+            Console.WriteLine("❌ Pas assez de Pokémon.");
             return;
         }
 
-        // Accès au pokédex
-        Console.WriteLine("📜 Accéder au pokédex (y/n) : ");
-        string? choice = Console.ReadLine();
-        if (choice != null && choice.ToLower() == "y")
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine("📜 Voir le pokédex ? (y/n)");
+        string? showPokedex = Console.ReadLine();
+
+        if (showPokedex?.ToLower() == "y")
         {
-            Console.WriteLine("\nListe des Pokémon disponibles :");
             for (int i = 0; i < pokemons.Count; i++)
-            {
                 Console.WriteLine($"{i} - {pokemons[i].Name}");
-            }
         }
 
-        // Choix du Pokémon joueur
-        Console.WriteLine("\nQuel Pokémon voulez-vous dans votre équipe ? (N° ou nom) : ");
+        Console.Write("\nChoisissez votre Pokémon (nom/n°): ");
         string? input = Console.ReadLine();
         Console.Clear();
 
-        if (string.IsNullOrWhiteSpace(input))
+        Pokemon? playerPokemon = int.TryParse(input, out int index)
+            ? pokemons[index]
+            : pokemons.Find(p => p.Name.Equals(input, StringComparison.OrdinalIgnoreCase));
+
+        if (playerPokemon == null)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("❌ Entrée vide.");
-            Console.ResetColor();
+            Console.WriteLine("❌ Pokémon introuvable.");
             return;
         }
 
-        Pokemon? pokemon1 = null;
-        if (int.TryParse(input, out int index))
+        Random rnd = new();
+        Pokemon enemyPokemon;
+        do
         {
-            if (index >= 0 && index < pokemons.Count)
-                pokemon1 = pokemons[index];
-            else
+            enemyPokemon = pokemons[rnd.Next(pokemons.Count)];
+        } while (enemyPokemon == playerPokemon);
+
+        // Entrée dans l'arène
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        TypeWriterEffect($"\n{playerPokemon.Name} entre dans l'arène !");
+        TypeWriterEffect($"{enemyPokemon.Name} entre dans l'arène !");
+        
+        Console.ResetColor();
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("\nCombattants :");
+        playerPokemon.AfficherInfos();
+        enemyPokemon.AfficherInfos();
+
+        // Inventaire du joueur
+        List<IItem> inventory = new List<IItem> { new Pokeball(), new Potion() };
+
+        bool combatTermine = false;
+
+        while (!playerPokemon.IsKO() && !enemyPokemon.IsKO() && !combatTermine)
+        {
+            // ---------------- TOUR DU JOUEUR ----------------
+            Console.ForegroundColor = ConsoleColor.Red;
+            TypeWriterEffect("\n===== TOUR DU JOUEUR =====");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("1. Attaquer");
+            Console.WriteLine("2. Utiliser un objet");
+            Console.Write("Choix: \n");
+            Console.ResetColor();
+            string? action = Console.ReadLine();
+
+            switch (action)
+            {
+                case "1":
+                    playerPokemon.Fight(enemyPokemon);
+                    break;
+
+                case "2":
+                    Console.WriteLine("\nInventaire :");
+                    for (int i = 0; i < inventory.Count; i++)
+                        Console.WriteLine($"{i + 1}. {inventory[i].Name} (Prix : {inventory[i].Cost}) ₽");
+
+                    Console.Write("Choisissez un objet à utiliser : ");
+                    if (int.TryParse(Console.ReadLine(), out int itemChoice))
+                    {
+                        itemChoice--; // 0-based
+                        if (itemChoice >= 0 && itemChoice < inventory.Count)
+                        {
+                            IItem item = inventory[itemChoice];
+
+                            if (item is Pokeball)
+                            {
+                                item.Use(enemyPokemon);
+                                if (enemyPokemon.IsKO())
+                                    combatTermine = true; // Capture réussie
+                            }
+                            else if (item is Potion)
+                            {
+                                item.Use(playerPokemon);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Objet invalide !");
+                        }
+                    }
+                    break;
+
+                default:
+                    Console.WriteLine("Action invalide. Tour sauté.");
+                    break;
+            }
+
+            // ---------------- TOUR DE L'ENNEMI ----------------
+            if (!enemyPokemon.IsKO() && !combatTermine)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("❌ Numéro invalide.");
+                TypeWriterEffect("\n===== TOUR DE L'ENNEMI =====");
                 Console.ResetColor();
-                return;
-            }
-        }
-        else
-        {
-            pokemon1 = pokemons.Find(p => p.Name.Equals(input, StringComparison.OrdinalIgnoreCase));
-            if (pokemon1 is null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"❌ Aucun Pokémon nommé '{input}' trouvé.");
-                Console.ResetColor();
-                return;
+                enemyPokemon.Fight(playerPokemon);
             }
         }
 
-        Pokemon pokemon1Selected = pokemon1;
+        // ---------------- FIN DU COMBAT ----------------
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        TypeWriterEffect("\n===== FIN DU COMBAT =====");
+        Console.ForegroundColor = ConsoleColor.Green;
 
-        // Vérification que le Pokémon joueur a au moins une attaque
-        if (pokemon1Selected.Attacks.Count == 0)
-        {
-            pokemon1Selected.Attacks.Add(new DamageAttack("Coup", pokemon1Selected.Type, pokemon1Selected.Attack));
-            pokemon1Selected.Attacks.Add(new DamageAttack("Griffe", pokemon1Selected.Type, pokemon1Selected.Attack));
-            pokemon1Selected.Attacks.Add(new HealingAttack("Soin", pokemon1Selected.Type, pokemon1Selected.MaxPV / 2));
-            pokemon1Selected.Attacks.Add(new VampireAttack("Chauve-souris", pokemon1Selected.Type, pokemon1Selected.Attack, 1));
-        }
-
-        // Pokémon ennemi défini aléatoirement
-        Random rnd = new Random();
-        Pokemon pokemon2 = pokemons[rnd.Next(pokemons.Count)];
-
-        // Vérification que l'ennemi a au moins une attaque
-        if (pokemon2.Attacks.Count == 0)
-        {
-            switch (pokemon2.Type)
-        {
-            case TypePokemon.Feu:
-                pokemon2.Attacks.Add(new DamageAttack("Flamme", TypePokemon.Feu, pokemon2.Attack));
-                pokemon2.Attacks.Add(new DamageAttack("Griffe", TypePokemon.Normal, pokemon2.Attack));
-                break;
-            case TypePokemon.Eau:
-                pokemon2.Attacks.Add(new DamageAttack("Pistolet à O", TypePokemon.Eau, pokemon2.Attack));
-                pokemon2.Attacks.Add(new DamageAttack("Morsure", TypePokemon.Normal, pokemon2.Attack));
-                break;
-            case TypePokemon.Électrik:
-                pokemon2.Attacks.Add(new DamageAttack("Tonnerre", TypePokemon.Électrik, pokemon2.Attack));
-                pokemon2.Attacks.Add(new DamageAttack("Éclair", TypePokemon.Électrik, pokemon2.Attack));
-                break;
-            default:
-                pokemon2.Attacks.Add(new DamageAttack("Coup", TypePokemon.Normal, pokemon2.Attack));
-                pokemon2.Attacks.Add(new DamageAttack("Griffe", TypePokemon.Normal, pokemon2.Attack));
-                break;
-}
-
-        }
-
-        // Affichage des combattants
-        Console.WriteLine("Les combattants sont :");
-        pokemon1Selected.AfficherInfos();
-        pokemon2.AfficherInfos();
-
-        // Boucle de combat automatique
-        while (!pokemon1Selected.IsKO() && !pokemon2.IsKO())
-        {
-            pokemon1Selected.Fight(pokemon2);
-            if (pokemon2.IsKO()) break;
-
-            pokemon2.Fight(pokemon1Selected);
-        }
-
-        // Fin du combat
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("\n===== FIN DU COMBAT =====");
-
-        if (pokemon1Selected.IsKO())
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{pokemon2.Name} a gagné le combat 🏆\n");
-        }
-        else if (pokemon2.IsKO())
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"{pokemon1Selected.Name} a gagné le combat 🏆\n");
-        }
+        if (playerPokemon.IsKO())
+            Console.WriteLine($"{enemyPokemon.Name} a gagné !");
+        else if (combatTermine && enemyPokemon.IsKO())
+            Console.WriteLine($"🎉 {enemyPokemon.Name} a été capturé !");
         else
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("Match nul !\n");
-        }
-
+            Console.WriteLine($"{playerPokemon.Name} a gagné !");
+            
         Console.ResetColor();
     }
 }

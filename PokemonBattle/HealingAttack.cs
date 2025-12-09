@@ -1,29 +1,17 @@
-namespace PokemonBattle;
-
-public class HealingAttack : Attack
+namespace PokemonBattle
 {
-    public int HealingAmount { get; }
-
-    public HealingAttack(string name, TypePokemon type, int healingAmount) 
-        : base(name, type)
+    public class HealingAttack : Attack
     {
-        HealingAmount = healingAmount;
-    }
+        public int HealAmount { get; }
 
-    public override void Use(Pokemon user, Pokemon target)
-    {
-       if (user.IsKO())
-       {
-           Console.WriteLine($"{user.Name} est KO est ne peut pas utilisé {Name}!");
-           return;
-       }
+        public HealingAttack(string name, TypePokemon type, int amount) : base(name, type)
+        {
+            HealAmount = amount;
+        }
 
-        user.Heal(HealingAmount);
-        Console.WriteLine($"{user.Name} utilise {Name} et récupère {HealingAmount} PV!");
-    }
-
-    public override void GetDescription()
-    {
-        Console.WriteLine($"- {Name} (Type: {Type}, Vie : {HealingAmount} PV)");
+        public override void Use(Pokemon attacker, Pokemon target)
+        {
+            attacker.Heal(HealAmount, Name);
+        }
     }
 }
