@@ -1,5 +1,6 @@
 using PokemonBattle;
 using System;
+using System.Threading;
 
 public class Pokeball : IItem
 {
@@ -7,25 +8,30 @@ public class Pokeball : IItem
     public int Cost => 50;
 
     private static Random chance = new Random();
-    private int catchRate = 50; // Pourcentage de chance de capture
+    private int catchRate = 50;
 
-    public void Use(Pokemon target)
+    public bool Use(Pokemon target)
     {
         int roll = chance.Next(0, 100);
+
         if (roll < catchRate)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"\n🎉 Félicitations ! Vous avez capturé {target.Name} !");
             Console.ResetColor();
 
-            // Mettre les PV à 0 pour terminer le combat
-            target.Heal(-target.PV);
+            return true; // ✅ capture réussie
         }
         else
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine($"\n😢 {target.Name} a échappé à la Pokéball !");
             Console.ResetColor();
+
+            Thread.Sleep(1000);
+            Console.Clear();
+
+            return false; // ❌ échec
         }
     }
 }

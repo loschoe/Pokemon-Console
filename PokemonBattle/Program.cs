@@ -5,6 +5,27 @@ using System.Threading;
 
 class Program
 {
+    static string menuArt = @"
+___  ___                      _       
+|  \/  |                     (_)      
+| .  . | __ _  __ _  __ _ ___ _ _ __  
+| |\/| |/ _` |/ _` |/ _` / __| | '_ \ 
+| |  | | (_| | (_| | (_| \__ \ | | | |
+\_|  |_/\__,_|\__, |\__,_|___/_|_| |_|
+               __/ |                  
+              |___/                   
+";
+
+    static string title = @"
+______     _                                _____                       _      
+| ___ \   | |                              /  __ \                     | |     
+| |_/ /__ | | _____ _ __ ___   ___  _ __   | /  \/ ___  _ __  ___  ___ | | ___ 
+|  __/ _ \| |/ / _ \ '_ ` _ \ / _ \| '_ \  | |    / _ \| '_ \/ __|/ _ \| |/ _ \
+| | | (_) |   <  __/ | | | | | (_) | | | | | \__/\ (_) | | | \__ \ (_) | |  __/
+\_|  \___/|_|\_\___|_| |_| |_|\___/|_| |_|  \____/\___/|_| |_|___/\___/|_|\___|
+                                                                               
+";
+
     public static void TypeWriterEffect(string text, int delay = 20)
     {
         foreach (char c in text)
@@ -17,8 +38,8 @@ class Program
 
     static void Main()
     {
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        TypeWriterEffect("\n⚔️ Bienvenue dans le combat Pokémon !");
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.Write(title);
         Console.ResetColor();
 
         string filePath = "pokedex.csv";
@@ -31,16 +52,18 @@ class Program
         }
 
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine("📜 Voir le pokédex ? (y/n)");
-        string? showPokedex = Console.ReadLine();
+        Console.Write("\n                                  📜 Pokedex (Y/N) \n");
 
-        if (showPokedex?.ToLower() == "y")
+        ConsoleKeyInfo key = Console.ReadKey(true);
+        char pressed = char.ToLower(key.KeyChar);
+        if (pressed == 'y')
         {
+            Console.Clear();
             for (int i = 0; i < pokemons.Count; i++)
                 Console.WriteLine($"{i} - {pokemons[i].Name}");
         }
 
-        Console.Write("\nChoisissez votre Pokémon (nom/n°): ");
+        Console.Write("\n                          Choisissez votre Pokémon (nom/n°): ");
         string? input = Console.ReadLine();
         Console.Clear();
 
@@ -73,6 +96,7 @@ class Program
         enemyPokemon.AfficherInfos();
 
         // Inventaire du joueur
+        int money = 300;
         List<IItem> inventory = new List<IItem> { new Pokeball(), new Potion() };
 
         bool combatTermine = false;
@@ -85,40 +109,66 @@ class Program
             Console.ResetColor();
 
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("1. Attaquer");
-            Console.WriteLine("2. Utiliser un objet");
-            Console.Write("Choix: \n");
+            Console.WriteLine("🤺 Attaquer");
+            Console.WriteLine("🎒 Utiliser un objet");
+            Console.WriteLine("🚪 Fuite");
+            Console.Write("Choix: ");
             Console.ResetColor();
-            string? action = Console.ReadLine();
+            
+            key = Console.ReadKey(true);
+            pressed = key.KeyChar;
 
-            switch (action)
+            switch (pressed)
+
             {
-                case "1":
+                case '1':
                     playerPokemon.Fight(enemyPokemon);
                     break;
 
-                case "2":
-                    Console.WriteLine("\nInventaire :");
+                case '2':
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.WriteLine(menuArt);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    TypeWriterEffect($"💰 Argent : {money}");
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
                     for (int i = 0; i < inventory.Count; i++)
-                        Console.WriteLine($"{i + 1}. {inventory[i].Name} (Prix : {inventory[i].Cost}) ₽");
-
-                    Console.Write("Choisissez un objet à utiliser : ");
+                        Console.WriteLine($"{i + 1}. {inventory[i].Name} ({inventory[i].Cost} ₽)");
+                    Console.WriteLine("3. QUITTER");
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.Write("\nChoisissez un objet à utiliser : ");
                     if (int.TryParse(Console.ReadLine(), out int itemChoice))
                     {
-                        itemChoice--; // 0-based
+                        itemChoice--; 
+
                         if (itemChoice >= 0 && itemChoice < inventory.Count)
                         {
                             IItem item = inventory[itemChoice];
 
-                            if (item is Pokeball)
+                            if (money >= item.Cost)
                             {
-                                item.Use(enemyPokemon);
-                                if (enemyPokemon.IsKO())
-                                    combatTermine = true; // Capture réussie
+                                money -= item.Cost;
+
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                TypeWriterEffect($"\n✅ Vous achetez {item.Name} pour {item.Cost}₽ !");
+                                Console.ResetColor();
+
+                                if (item is Pokeball pokeball)
+                                {
+                                    bool captured = pokeball.Use(enemyPokemon);
+                                    if (captured)
+                                        combatTermine = true;
+                                }
+                                else if (item is Potion)
+                                {
+                                    item.Use(playerPokemon);
+                                }
                             }
-                            else if (item is Potion)
+                            else
                             {
-                                item.Use(playerPokemon);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                TypeWriterEffect("\n❌ Pas assez d'argent !");
+                                Console.ResetColor();        
                             }
                         }
                         else
@@ -126,6 +176,10 @@ class Program
                             Console.WriteLine("Objet invalide !");
                         }
                     }
+                    break;
+
+                case '3':
+                    combatTermine = true;
                     break;
 
                 default:
@@ -149,11 +203,14 @@ class Program
         Console.ForegroundColor = ConsoleColor.Green;
 
         if (playerPokemon.IsKO())
-            Console.WriteLine($"{enemyPokemon.Name} a gagné !");
-        else if (combatTermine && enemyPokemon.IsKO())
-            Console.WriteLine($"🎉 {enemyPokemon.Name} a été capturé !");
+            Console.WriteLine($"😭 {enemyPokemon.Name} a gagné !\n");
+        //else if (combatTermine && enemyPokemon.IsKO())
+        else if (combatTermine)
+            Console.WriteLine($"🎉 {enemyPokemon.Name} a été capturé !\n");
         else
-            Console.WriteLine($"{playerPokemon.Name} a gagné !");
+            Console.WriteLine($"🏆 {playerPokemon.Name} a gagné !\n");
+            Thread.Sleep(1200);
+            Console.Clear();
             
         Console.ResetColor();
     }

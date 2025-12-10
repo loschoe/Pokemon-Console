@@ -59,7 +59,7 @@ namespace PokemonBattle
 
             var attack = Attacks[random.Next(Attacks.Count)];
             Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect($"{GetStyledName()} utilise {attack.Name} !");
+            TypeWriterEffect($"\n{GetStyledName()} utilise {attack.Name} !");
             Console.ResetColor();
 
             attack.Use(this, target);
@@ -74,17 +74,15 @@ namespace PokemonBattle
 
             string eff = effectiveness switch
             {
-                >= 2.0 => "C'est super efficace ! 💥",
-                0.5 => "Ce n'est pas très efficace... 😐",
-                0.0 => "Cela n’a aucun effet 😶",
+                >= 2.0 => "c'est super efficace ! 💥",
+                0.5 => "ce n'est pas très efficace... 😐",
+                0.0 => "cela n’a aucun effet 😶",
                 _ => ""
             };
 
             Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect($"{GetStyledName()} subit {damage} dégâts par {attackName} !");
-            if (!string.IsNullOrEmpty(eff))
-                TypeWriterEffect(eff);
-            TypeWriterEffect($"PV restants : {PV}");
+            TypeWriterEffect($"{GetStyledName()} subit {damage} dégâts {eff} !");
+            TypeWriterEffect($"PV restants : {PV}\n");
             Console.ResetColor();
         }
 
@@ -94,12 +92,20 @@ namespace PokemonBattle
             if (PV > MaxPV) PV = MaxPV;
 
             Console.ForegroundColor = GetConsoleColor();
+
             if (string.IsNullOrEmpty(sourceName))
-                TypeWriterEffect($"{GetStyledName()} récupère {amount} PV");
+            {
+                TypeWriterEffect($"💊 {GetStyledName()} récu         père {amount} PV !");
+            }
             else
-                TypeWriterEffect($"{GetStyledName()} récupère {amount} PV grâce à {sourceName} !");
+            {
+                TypeWriterEffect($"{GetStyledName()} récupère {amount} PV !");
+            }
             Console.ResetColor();
+            Thread.Sleep(1000);
+            Console.Clear();
         }
+
 
 
         public void CheckStatus()
