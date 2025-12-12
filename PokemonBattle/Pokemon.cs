@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace PokemonBattle
@@ -57,7 +59,56 @@ namespace PokemonBattle
                 return;
             }
 
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine("\nAttaques disponibles :");
+
+            for (int i = 0; i < Attacks.Count; i++)
+            {
+                Console.ForegroundColor = GetConsoleColor();
+                if (Attacks[i] is DamageAttack da)
+                    Console.WriteLine($"{da.Name} - Dégâts : {da.Power}");
+                
+                else if (Attacks[i] is HealingAttack ha)
+                    Console.WriteLine($"{ha.Name} - Soin : {ha.HealAmount}");
+
+                else if (Attacks[i] is VampireAttack va)
+                     Console.WriteLine($"{va.Name} - Drain : {va.DrainAmount}");
+
+                else
+                    Console.WriteLine(Attacks[i].Name);
+            }
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write("\nChoisissez une attaque : ");
+            string? input = Console.ReadLine();
+
+            if (!int.TryParse(input, out int choice) || choice < 1 || choice > Attacks.Count)
+            {
+                Console.WriteLine("❌ Choix invalide !");
+                return;
+            }
+
+            // On récupère la bonne attaque
+            var selectedAttack = Attacks[choice - 1];
+
+            Console.ForegroundColor = GetConsoleColor();
+            TypeWriterEffect($"\n{GetStyledName()} utilise {selectedAttack.Name} !");
+
+            selectedAttack.Use(this, target);
+            target.CheckStatus();
+        }
+      
+        public void FightAuto(Pokemon target)
+        {
+            if (Attacks.Count == 0)
+            {
+                Console.WriteLine($"{GetStyledName()} n'a aucune attaque !");
+                return;
+            }
+
+            // Choix aléatoire d'une attaque
             var attack = Attacks[random.Next(Attacks.Count)];
+
             Console.ForegroundColor = GetConsoleColor();
             TypeWriterEffect($"\n{GetStyledName()} utilise {attack.Name} !");
             Console.ResetColor();

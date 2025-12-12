@@ -90,10 +90,10 @@ public static class PokemonLoader
                 break;
 
             case TypePokemon.Électrik:
-                p.Attacks.Add(new DamageAttack("Éclair", p.Type, 20));
-                p.Attacks.Add(new DamageAttack("Fatal-Foudre", p.Type, 35));
-                p.Attacks.Add(new HealingAttack("Recharge électrique", p.Type, 15));
-                p.Attacks.Add(new VampireAttack("Absorption", p.Type, 10));
+                p.Attacks.Add(new DamageAttack("Éclair", p.Type, 30));
+                p.Attacks.Add(new DamageAttack("Fatal-Foudre", p.Type, 45));
+                p.Attacks.Add(new HealingAttack("Recharge électrique", p.Type, 20));
+                p.Attacks.Add(new VampireAttack("Absorption", p.Type, 15));
                 break;
 
             case TypePokemon.Acier:

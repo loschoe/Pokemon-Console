@@ -5,7 +5,7 @@ using System.Threading;
 public class Pokeball : IItem
 {
     public string Name => "Pokéball";
-    public int Cost => 50;
+    public int Cost => 100;
 
     private static Random chance = new Random();
     private int catchRate = 50;

@@ -100,11 +100,14 @@ ______     _                                _____                       _
         List<IItem> inventory = new List<IItem> { new Pokeball(), new Potion() };
 
         bool combatTermine = false;
+        bool fuite = false;
 
         while (!playerPokemon.IsKO() && !enemyPokemon.IsKO() && !combatTermine)
         {
             // ---------------- TOUR DU JOUEUR ----------------
             Console.ForegroundColor = ConsoleColor.Red;
+            Thread.Sleep(1000);
+            Console.Clear();
             TypeWriterEffect("\n===== TOUR DU JOUEUR =====");
             Console.ResetColor();
 
@@ -112,7 +115,7 @@ ______     _                                _____                       _
             Console.WriteLine("🤺 Attaquer");
             Console.WriteLine("🎒 Utiliser un objet");
             Console.WriteLine("🚪 Fuite");
-            Console.Write("Choix: ");
+            Console.Write("Choix: \n");
             Console.ResetColor();
             
             key = Console.ReadKey(true);
@@ -123,6 +126,8 @@ ______     _                                _____                       _
             {
                 case '1':
                     playerPokemon.Fight(enemyPokemon);
+                    if (!enemyPokemon.IsKO())
+                        enemyPokemon.FightAuto(playerPokemon);
                     break;
 
                 case '2':
@@ -179,21 +184,13 @@ ______     _                                _____                       _
                     break;
 
                 case '3':
+                    fuite = true;
                     combatTermine = true;
                     break;
 
                 default:
                     Console.WriteLine("Action invalide. Tour sauté.");
                     break;
-            }
-
-            // ---------------- TOUR DE L'ENNEMI ----------------
-            if (!enemyPokemon.IsKO() && !combatTermine)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                TypeWriterEffect("\n===== TOUR DE L'ENNEMI =====");
-                Console.ResetColor();
-                enemyPokemon.Fight(playerPokemon);
             }
         }
 
@@ -205,11 +202,15 @@ ______     _                                _____                       _
         if (playerPokemon.IsKO())
             Console.WriteLine($"😭 {enemyPokemon.Name} a gagné !\n");
         //else if (combatTermine && enemyPokemon.IsKO())
+        else if (combatTermine && fuite)
+            Console.WriteLine($"😭 {enemyPokemon.Name} a gagné par abandon !\n");
         else if (combatTermine)
             Console.WriteLine($"🎉 {enemyPokemon.Name} a été capturé !\n");
+        else if (combatTermine && fuite)
+            Console.WriteLine($"😭 {enemyPokemon.Name} a gagné par abandon !\n");
         else
             Console.WriteLine($"🏆 {playerPokemon.Name} a gagné !\n");
-            Thread.Sleep(1200);
+            Thread.Sleep(1300);
             Console.Clear();
             
         Console.ResetColor();

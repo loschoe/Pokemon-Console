@@ -3,7 +3,7 @@ using PokemonBattle;
 public class Potion : IItem
 {
     public string Name => "Rappel";
-    public int Cost => 100;
+    public int Cost => 150;
 
     public bool Use(Pokemon target)
     {
