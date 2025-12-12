@@ -8,6 +8,7 @@ Ce jeu est développé dans le cadre d'un module à **STRASBOURG Ynov Campus**.
 ## 📄 Fonctionnalités :
 - Accès à un `pokédex` (inspiré des pokémons disponibles sur Pokemon Lune)
 - Combat contre l'ordinateur avec des fonctionnalités de calcul de combat intégrées.
+- Possibilité de choisir son attaque parmis plusieurs attaques : `DamageAttack`, `VampireAttack`, `HealingAttack`.
 - Système monétaire `300 ₽`
 - Possibilité d'utiliser une `pokeball` pour **capturer le pokemon** ennemi [L'ajout dans une équipe n'est pas encore codé]
 - Possibilité d'utiliser une potion pour **restaurer la vie** 
