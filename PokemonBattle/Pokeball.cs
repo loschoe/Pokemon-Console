@@ -28,7 +28,7 @@ public class Pokeball : IItem
             Console.WriteLine($"\n😢 {target.Name} a échappé à la Pokéball !");
             Console.ResetColor();
 
-            Thread.Sleep(1000);
+            Thread.Sleep(1500);
             Console.Clear();
 
             return false; // ❌ échec

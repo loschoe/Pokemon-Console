@@ -59,11 +59,45 @@ ______     _                                _____                       _
         if (pressed == 'y')
         {
             Console.Clear();
-            for (int i = 0; i < pokemons.Count; i++)
-                Console.WriteLine($"{i} - {pokemons[i].Name}");
-        }
+            Console.ForegroundColor = ConsoleColor.Red;
 
-        Console.Write("\n                          Choisissez votre Pokémon (nom/n°): ");
+            Console.WriteLine("================================================================================");
+            Console.WriteLine("                                P O K É D E X");
+            Console.WriteLine("================================================================================");
+            Console.ResetColor();
+
+            int columns = 3;
+            int width = 25;
+
+            for (int i = 0; i < pokemons.Count; i++)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write("[");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.Write($"{i,2}");
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write("] ");
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                string entry = pokemons[i].Name;
+                Console.Write(entry.PadRight(width));
+
+                Console.ResetColor();
+
+                if ((i + 1) % columns == 0)
+                    Console.WriteLine();
+            }
+
+            Console.WriteLine("\n================================================================================");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Sélectionne un Pokémon");
+            Console.ResetColor();
+            Console.WriteLine("================================================================================");
+        }
+        if (pressed == 'n')
+        {
+            Console.Write("\n                          Choisissez votre Pokémon (nom/n°): ");
+        } 
         string? input = Console.ReadLine();
         Console.Clear();
 
@@ -106,7 +140,7 @@ ______     _                                _____                       _
         {
             // ---------------- TOUR DU JOUEUR ----------------
             Console.ForegroundColor = ConsoleColor.Red;
-            Thread.Sleep(1000);
+            Thread.Sleep(4000);
             Console.Clear();
             TypeWriterEffect("\n===== TOUR DU JOUEUR =====");
             Console.ResetColor();
@@ -210,7 +244,7 @@ ______     _                                _____                       _
             Console.WriteLine($"😭 {enemyPokemon.Name} a gagné par abandon !\n");
         else
             Console.WriteLine($"🏆 {playerPokemon.Name} a gagné !\n");
-            Thread.Sleep(1300);
+            Thread.Sleep(5000);
             Console.Clear();
             
         Console.ResetColor();

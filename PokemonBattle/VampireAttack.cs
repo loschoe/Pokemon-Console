@@ -1,22 +1,30 @@
+using System;
+
 namespace PokemonBattle
 {
     public class VampireAttack : Attack
     {
-        public int DrainAmount { get; }
+        public double DrainPercent { get; }
 
-        public VampireAttack(string name, TypePokemon type, int drainAmount)
+        public VampireAttack(string name, TypePokemon type, double drainPercent)
             : base(name, type)
         {
-            DrainAmount = drainAmount;
+            DrainPercent = drainPercent;
         }
 
         public override void Use(Pokemon attacker, Pokemon target)
         {
-            int damage = Math.Max(0, DrainAmount + attacker.Attack - target.Defense);
+            // Dégâts calculés comme une attaque simple
+            int damage = (int)Math.Round(attacker.Attack * 1.0);
+
             double effectiveness = TypeHelper.GetEffectiveness(Type, target.Type);
 
             target.Damage(Name, damage, effectiveness);
-            attacker.Heal(damage / 2, Name);
+
+            // Le Pokémon récupère un pourcentage des dégâts infligés
+            int healAmount = (int)Math.Round(damage * DrainPercent);
+
+            attacker.Heal(healAmount, Name);
         }
     }
 }

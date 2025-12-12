@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace PokemonBattle
@@ -30,7 +28,7 @@ namespace PokemonBattle
 
         public string GetStyledName() => $"{Name}";
 
-        public static void TypeWriterEffect(string text, int delay = 20)
+        public static void TypeWriterEffect(string text, int delay = 15)
         {
             foreach (char c in text)
             {
@@ -43,16 +41,28 @@ namespace PokemonBattle
         public void AfficherInfos()
         {
             Console.ForegroundColor = GetConsoleColor();
-            Console.WriteLine($"\n------- {GetStyledName()} -------");
+            Console.WriteLine($"\n------------ {GetStyledName()} ------------");
             Console.WriteLine($"Type: {Type}");
-            Console.WriteLine($"PV: {PV}/{MaxPV}");
-            Console.WriteLine($"Attaque: {Attack}");
-            Console.WriteLine($"Défense: {Defense}");
+            Console.WriteLine($"PV: {PV}/{MaxPV} {HealthBar(PV, MaxPV)}");
+            Console.WriteLine($"Attaque/Defence: {Attack}/{Defense}");
             Console.ResetColor();
+        }
+
+        static string HealthBar(int pv, int maxpv)
+        {
+            int size = 20;
+            int filled = pv * size / maxpv;
+            return "|" + new string('█', filled) + new string('░', size - filled) + "|";
         }
 
         public void Fight(Pokemon target)
         {
+            Thread.Sleep(1500);
+            Console.Clear();
+
+            AfficherInfos();
+            target.AfficherInfos();
+
             if (Attacks.Count == 0)
             {
                 Console.WriteLine($"{GetStyledName()} n'a aucune attaque !");
@@ -65,18 +75,31 @@ namespace PokemonBattle
             for (int i = 0; i < Attacks.Count; i++)
             {
                 Console.ForegroundColor = GetConsoleColor();
-                if (Attacks[i] is DamageAttack da)
-                    Console.WriteLine($"{da.Name} - Dégâts : {da.Power}");
-                
-                else if (Attacks[i] is HealingAttack ha)
-                    Console.WriteLine($"{ha.Name} - Soin : {ha.HealAmount}");
+                Attack atk = Attacks[i];
 
-                else if (Attacks[i] is VampireAttack va)
-                     Console.WriteLine($"{va.Name} - Drain : {va.DrainAmount}");
+                if (atk is DamageAttack da)
+                {
+                    int realDamage = (int)Math.Round(Attack * da.Multiplier);
+                    Console.WriteLine($"{i+1}. {da.Name} - Dégâts : {realDamage}");
+                }
+                else if (atk is HealingAttack ha)
+                {
+                    int realHeal = (int)Math.Round(MaxPV * ha.HealPercent);
+                    Console.WriteLine($"{i+1}. {ha.Name} - Soin : {realHeal}");
+                }
+                else if (atk is VampireAttack va)
+                {
+                    int realDamage = (int)Math.Round(Attack * 1.0);
+                    int realDrain = (int)Math.Round(realDamage * va.DrainPercent);
 
+                    Console.WriteLine($"{i+1}. {va.Name} - Dégâts : {realDamage} | Drain : {realDrain}");
+                }
                 else
-                    Console.WriteLine(Attacks[i].Name);
+                {
+                    Console.WriteLine($"{i+1}. {atk.Name}");
+                }
             }
+
 
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("\nChoisissez une attaque : ");
@@ -88,16 +111,23 @@ namespace PokemonBattle
                 return;
             }
 
-            // On récupère la bonne attaque
+            Thread.Sleep(1000);
+            Console.Clear();
+
             var selectedAttack = Attacks[choice - 1];
 
             Console.ForegroundColor = GetConsoleColor();
-            TypeWriterEffect($"\n{GetStyledName()} utilise {selectedAttack.Name} !");
+            TypeWriterEffect($"{GetStyledName()} utilise {selectedAttack.Name} !\n");
 
             selectedAttack.Use(this, target);
+
+            Console.WriteLine();
+            AfficherInfos();
+            target.AfficherInfos();
+
             target.CheckStatus();
         }
-      
+
         public void FightAuto(Pokemon target)
         {
             if (Attacks.Count == 0)
@@ -106,7 +136,6 @@ namespace PokemonBattle
                 return;
             }
 
-            // Choix aléatoire d'une attaque
             var attack = Attacks[random.Next(Attacks.Count)];
 
             Console.ForegroundColor = GetConsoleColor();
@@ -133,7 +162,7 @@ namespace PokemonBattle
 
             Console.ForegroundColor = GetConsoleColor();
             TypeWriterEffect($"{GetStyledName()} subit {damage} dégâts {eff} !");
-            TypeWriterEffect($"PV restants : {PV}\n");
+            TypeWriterEffect($"PV : {PV}/{MaxPV} {HealthBar(PV, MaxPV)}");
             Console.ResetColor();
         }
 
@@ -143,21 +172,10 @@ namespace PokemonBattle
             if (PV > MaxPV) PV = MaxPV;
 
             Console.ForegroundColor = GetConsoleColor();
-
-            if (string.IsNullOrEmpty(sourceName))
-            {
-                TypeWriterEffect($"💊 {GetStyledName()} récu         père {amount} PV !");
-            }
-            else
-            {
-                TypeWriterEffect($"{GetStyledName()} récupère {amount} PV !");
-            }
+            TypeWriterEffect($"💊 {GetStyledName()} récupère {amount} PV !");
+            TypeWriterEffect($"PV : {PV}/{MaxPV} {HealthBar(PV, MaxPV)}");
             Console.ResetColor();
-            Thread.Sleep(1000);
-            Console.Clear();
         }
-
-
 
         public void CheckStatus()
         {
@@ -165,7 +183,7 @@ namespace PokemonBattle
             if (PV <= 0)
                 TypeWriterEffect($"{GetStyledName()} est KO !");
             else
-                TypeWriterEffect($"{GetStyledName()} peut encore se battre !");
+                TypeWriterEffect($"{GetStyledName()} peut encore se battre.");
             Console.ResetColor();
         }
 

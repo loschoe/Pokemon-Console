@@ -1,17 +1,23 @@
+using System;
+
 namespace PokemonBattle
 {
     public class HealingAttack : Attack
     {
-        public int HealAmount { get; }
+        public double HealPercent { get; }
 
-        public HealingAttack(string name, TypePokemon type, int amount) : base(name, type)
+        public HealingAttack(string name, TypePokemon type, double percent)
+            : base(name, type)
         {
-            HealAmount = amount;
+            HealPercent = percent;
         }
 
         public override void Use(Pokemon attacker, Pokemon target)
         {
-            attacker.Heal(HealAmount, Name);
+            // Soigne un pourcentage du PV max du Pokémon
+            int healAmount = (int)Math.Round(attacker.MaxPV * HealPercent);
+
+            attacker.Heal(healAmount, Name);
         }
     }
 }
