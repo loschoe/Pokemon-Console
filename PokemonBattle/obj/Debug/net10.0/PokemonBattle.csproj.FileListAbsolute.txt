@@ -13,3 +13,7 @@ C:\Users\louis\Documents\Ynov\POO\PokemonBattle\obj\Debug\net10.0\PokemonBattle.
 C:\Users\louis\Documents\Ynov\POO\PokemonBattle\obj\Debug\net10.0\PokemonBattle.genruntimeconfig.cache
 C:\Users\louis\Documents\Ynov\POO\PokemonBattle\obj\Debug\net10.0\ref\PokemonBattle.dll
 C:\Users\louis\Documents\Ynov\POO\PokemonBattle\obj\Debug\net10.0\PokemonBattle.sourcelink.json
+C:\Users\louis\Documents\Ynov\POO\PokemonBattle\bin\Debug\net10.0\System.Windows.Extensions.dll
+C:\Users\louis\Documents\Ynov\POO\PokemonBattle\bin\Debug\net10.0\runtimes\win\lib\net10.0\System.Windows.Extensions.dll
+C:\Users\louis\Documents\Ynov\POO\PokemonBattle\obj\Debug\net10.0\PokemonBattle.csproj.AssemblyReference.cache
+C:\Users\louis\Documents\Ynov\POO\PokemonBattle\obj\Debug\net10.0\PokemonB.99078073.Up2Date

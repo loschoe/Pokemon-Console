@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Media;
 
 class Program
 {
@@ -34,6 +35,15 @@ ______     _                                _____                       _
             Thread.Sleep(delay);
         }
         Console.WriteLine();
+    }
+
+
+    // Uniquement fonctionnel sur Windows !!
+    public static void PlayMusic(string filepath)
+    {
+        SoundPlayer musicPlayer = new SoundPlayer();
+        musicPlayer.SoundLocation = filepath;
+        musicPlayer.Play();
     }
 
     static void Main()
@@ -121,11 +131,14 @@ ______     _                                _____                       _
         // Entrée dans l'arène
         Console.ForegroundColor = ConsoleColor.DarkGray;
         TypeWriterEffect($"\n{playerPokemon.Name} entre dans l'arène !");
+        PlayMusic("pikachu.wav");
+        Thread.Sleep(1500);
         TypeWriterEffect($"{enemyPokemon.Name} entre dans l'arène !");
-        
+        PlayMusic("boom.wav");
         Console.ResetColor();
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine("\nCombattants :");
+        
         playerPokemon.AfficherInfos();
         enemyPokemon.AfficherInfos();
 
@@ -143,6 +156,7 @@ ______     _                                _____                       _
             Thread.Sleep(4000);
             Console.Clear();
             TypeWriterEffect("\n===== TOUR DU JOUEUR =====");
+            PlayMusic("sheikah.wav");
             Console.ResetColor();
 
             Console.ForegroundColor = ConsoleColor.DarkGray;
